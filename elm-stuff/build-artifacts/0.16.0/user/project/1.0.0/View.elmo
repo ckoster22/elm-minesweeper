@@ -1,0 +1,75 @@
+Elm.View = Elm.View || {};
+Elm.View.make = function (_elm) {
+   "use strict";
+   _elm.View = _elm.View || {};
+   if (_elm.View.values) return _elm.View.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Actions = Elm.Actions.make(_elm),
+   $Array = Elm.Array.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $Html = Elm.Html.make(_elm),
+   $Html$Attributes = Elm.Html.Attributes.make(_elm),
+   $Html$Events = Elm.Html.Events.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Model = Elm.Model.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm),
+   $Utils = Elm.Utils.make(_elm);
+   var _op = {};
+   var mineBoxStyle = $Html$Attributes.style(_U.list([{ctor: "_Tuple2",_0: "width",_1: "30px"}
+                                                     ,{ctor: "_Tuple2",_0: "height",_1: "30px"}
+                                                     ,{ctor: "_Tuple2",_0: "background-color",_1: "#ff5050"}
+                                                     ,{ctor: "_Tuple2",_0: "text-align",_1: "center"}
+                                                     ,{ctor: "_Tuple2",_0: "cursor",_1: "pointer"}]));
+   var hiddenBoxStyle = $Html$Attributes.style(_U.list([{ctor: "_Tuple2",_0: "width",_1: "30px"}
+                                                       ,{ctor: "_Tuple2",_0: "height",_1: "30px"}
+                                                       ,{ctor: "_Tuple2",_0: "text-align",_1: "center"}
+                                                       ,{ctor: "_Tuple2",_0: "cursor",_1: "pointer"}
+                                                       ,{ctor: "_Tuple2",_0: "background-color",_1: "darkgray"}]));
+   var boxStyleFor = function (neighbors) {
+      var color = function () {
+         var _p0 = neighbors;
+         switch (_p0)
+         {case 1: return "blue";
+            case 2: return "green";
+            case 3: return "red";
+            case 4: return "purple";
+            case 5: return "maroon";
+            case 6: return "aqua";
+            default: return "black";}
+      }();
+      return $Html$Attributes.style(_U.list([{ctor: "_Tuple2",_0: "width",_1: "30px"}
+                                            ,{ctor: "_Tuple2",_0: "height",_1: "30px"}
+                                            ,{ctor: "_Tuple2",_0: "text-align",_1: "center"}
+                                            ,{ctor: "_Tuple2",_0: "color",_1: color}
+                                            ,{ctor: "_Tuple2",_0: "font-weight",_1: "bold"}]));
+   };
+   var boxView = F2(function (address,box) {
+      if (box.isRevealed) {
+            var _p1 = box.value;
+            if (_p1.ctor === "Mine") {
+                  return A2($Html.td,_U.list([mineBoxStyle]),_U.list([$Html.text("M")]));
+               } else {
+                  var _p2 = _p1._0;
+                  return A2($Html.td,_U.list([boxStyleFor(_p2)]),_U.list([$Html.text($Basics.toString(_p2))]));
+               }
+         } else return A2($Html.td,_U.list([hiddenBoxStyle,A2($Html$Events.onClick,address,$Actions.Reveal(box))]),_U.list([]));
+   });
+   var rowView = F2(function (address,boxes) {    return A2($Html.tr,_U.list([]),A2($List.map,function (box) {    return A2(boxView,address,box);},boxes));});
+   var view = F2(function (address,model) {
+      var board2D = A3($Utils.convertTo2DList,$Array.toList(model.board),0,model.columns);
+      return A2($Html.div,
+      _U.list([]),
+      _U.list([A2($Html.h1,_U.list([]),_U.list([$Html.text("Minesweeper")]))
+              ,A2($Html.table,_U.list([]),A2($List.map,function (boxRow) {    return A2(rowView,address,boxRow);},board2D))]));
+   });
+   return _elm.View.values = {_op: _op
+                             ,view: view
+                             ,rowView: rowView
+                             ,boxView: boxView
+                             ,boxStyleFor: boxStyleFor
+                             ,hiddenBoxStyle: hiddenBoxStyle
+                             ,mineBoxStyle: mineBoxStyle};
+};

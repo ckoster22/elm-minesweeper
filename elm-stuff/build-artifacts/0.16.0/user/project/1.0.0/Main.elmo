@@ -1,0 +1,102 @@
+Elm.Main = Elm.Main || {};
+Elm.Main.make = function (_elm) {
+   "use strict";
+   _elm.Main = _elm.Main || {};
+   if (_elm.Main.values) return _elm.Main.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Array = Elm.Array.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Model = Elm.Model.make(_elm),
+   $Random = Elm.Random.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm),
+   $StartApp$Simple = Elm.StartApp.Simple.make(_elm),
+   $Update = Elm.Update.make(_elm),
+   $Utils = Elm.Utils.make(_elm),
+   $View = Elm.View.make(_elm);
+   var _op = {};
+   var maybeIncrementMineCount = function (maybeBox) {
+      var _p0 = maybeBox;
+      if (_p0.ctor === "Just") {
+            return _U.eq(_p0._0.value,$Model.Mine) ? 1 : 0;
+         } else {
+            return 0;
+         }
+   };
+   var populateNumbersForBoxAt = F4(function (index,box,board,columns) {
+      var maybeWBox = A3($Utils.getWNeighbor,index,columns,board);
+      var maybeSWBox = A3($Utils.getSWNeighbor,index,columns,board);
+      var maybeSBox = A3($Utils.getSNeighbor,index,columns,board);
+      var maybeSEBox = A3($Utils.getSENeighbor,index,columns,board);
+      var maybeEBox = A3($Utils.getENeighbor,index,columns,board);
+      var maybeNEBox = A3($Utils.getNENeighbor,index,columns,board);
+      var maybeNBox = A3($Utils.getNNeighbor,index,columns,board);
+      var maybeNWBox = A3($Utils.getNWNeighbor,index,columns,board);
+      var numNeighborMines = maybeIncrementMineCount(maybeNWBox) + maybeIncrementMineCount(maybeNBox) + maybeIncrementMineCount(maybeNEBox) + maybeIncrementMineCount(maybeEBox) + maybeIncrementMineCount(maybeSEBox) + maybeIncrementMineCount(maybeSBox) + maybeIncrementMineCount(maybeSWBox) + maybeIncrementMineCount(maybeWBox);
+      return _U.update(box,{value: $Model.Clear(numNeighborMines)});
+   });
+   var populateNumbersForBoard = F2(function (columns,board) {
+      return A2($Array.indexedMap,
+      F2(function (index,box) {    return _U.eq(box.value,$Model.Mine) ? box : A4(populateNumbersForBoxAt,index,box,board,columns);}),
+      board);
+   });
+   var insertRandomMines = F3(function (board,seed,minesRemaining) {
+      insertRandomMines: while (true) {
+         var totalBoxes = $Array.length(board);
+         var _p1 = A2($Random.generate,A2($Random.$int,0,totalBoxes - 1),seed);
+         var randomIndex = _p1._0;
+         var seed$ = _p1._1;
+         var maybeCurrentBox = A2($Array.get,randomIndex,board);
+         var _p2 = maybeCurrentBox;
+         if (_p2.ctor === "Just") {
+               var _p3 = _p2._0;
+               if (_U.eq(_p3.value,$Model.Mine)) {
+                     var _v2 = board,_v3 = seed$,_v4 = minesRemaining;
+                     board = _v2;
+                     seed = _v3;
+                     minesRemaining = _v4;
+                     continue insertRandomMines;
+                  } else {
+                     var nextBoard = A3($Array.set,randomIndex,_U.update(_p3,{value: $Model.Mine}),board);
+                     if (_U.cmp(minesRemaining,1) > 0) {
+                           var _v5 = nextBoard,_v6 = seed$,_v7 = minesRemaining - 1;
+                           board = _v5;
+                           seed = _v6;
+                           minesRemaining = _v7;
+                           continue insertRandomMines;
+                        } else return nextBoard;
+                  }
+            } else {
+               return board;
+            }
+      }
+   });
+   var addMinesToBoard = F2(function (numMines,board) {    return A3(insertRandomMines,board,$Random.initialSeed(80008),numMines);});
+   var defaultBoxAt = function (index) {    return {isRevealed: false,value: $Model.Clear(0),index: index};};
+   var createEmptyBoard = F2(function (rows,columns) {    return A2($Array.initialize,rows * columns,function (index) {    return defaultBoxAt(index);});});
+   var initBoard = F3(function (rows,columns,numMines) {
+      return A2(populateNumbersForBoard,columns,A2(addMinesToBoard,numMines,A2(createEmptyBoard,rows,columns)));
+   });
+   var initialMines = 99;
+   var initialRows = 16;
+   var initialColumns = 30;
+   var appState = {board: A3(initBoard,initialRows,initialColumns,initialMines),rows: initialRows,columns: initialColumns,mines: initialMines};
+   var main = $StartApp$Simple.start({model: appState,view: $View.view,update: $Update.update});
+   return _elm.Main.values = {_op: _op
+                             ,initialColumns: initialColumns
+                             ,initialRows: initialRows
+                             ,initialMines: initialMines
+                             ,appState: appState
+                             ,initBoard: initBoard
+                             ,createEmptyBoard: createEmptyBoard
+                             ,defaultBoxAt: defaultBoxAt
+                             ,addMinesToBoard: addMinesToBoard
+                             ,insertRandomMines: insertRandomMines
+                             ,populateNumbersForBoard: populateNumbersForBoard
+                             ,populateNumbersForBoxAt: populateNumbersForBoxAt
+                             ,maybeIncrementMineCount: maybeIncrementMineCount
+                             ,main: main};
+};

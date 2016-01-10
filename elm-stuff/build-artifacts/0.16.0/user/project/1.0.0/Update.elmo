@@ -1,0 +1,79 @@
+Elm.Update = Elm.Update || {};
+Elm.Update.make = function (_elm) {
+   "use strict";
+   _elm.Update = _elm.Update || {};
+   if (_elm.Update.values) return _elm.Update.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Actions = Elm.Actions.make(_elm),
+   $Array = Elm.Array.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Model = Elm.Model.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm),
+   $Utils = Elm.Utils.make(_elm);
+   var _op = {};
+   var revealEntireBoard = function (board) {    return A2($Array.map,function (box) {    return _U.update(box,{isRevealed: true});},board);};
+   var recursivelyRevealEmptyNeighbors = F3(function (box,board,columns) {
+      var updatedBox = _U.update(box,{isRevealed: true});
+      var maybeNWBox = A3($Utils.getNWNeighbor,updatedBox.index,columns,board);
+      var maybeNBox = A3($Utils.getNNeighbor,updatedBox.index,columns,board);
+      var maybeNEBox = A3($Utils.getNENeighbor,updatedBox.index,columns,board);
+      var maybeEBox = A3($Utils.getENeighbor,updatedBox.index,columns,board);
+      var maybeSEBox = A3($Utils.getSENeighbor,updatedBox.index,columns,board);
+      var maybeSBox = A3($Utils.getSNeighbor,updatedBox.index,columns,board);
+      var maybeSWBox = A3($Utils.getSWNeighbor,updatedBox.index,columns,board);
+      var maybeWBox = A3($Utils.getWNeighbor,updatedBox.index,columns,board);
+      return A3(maybeExpandNeighbor,
+      maybeWBox,
+      columns,
+      A3(maybeExpandNeighbor,
+      maybeSWBox,
+      columns,
+      A3(maybeExpandNeighbor,
+      maybeSBox,
+      columns,
+      A3(maybeExpandNeighbor,
+      maybeSEBox,
+      columns,
+      A3(maybeExpandNeighbor,
+      maybeEBox,
+      columns,
+      A3(maybeExpandNeighbor,
+      maybeNEBox,
+      columns,
+      A3(maybeExpandNeighbor,maybeNBox,columns,A3(maybeExpandNeighbor,maybeNWBox,columns,A3($Array.set,box.index,updatedBox,board)))))))));
+   });
+   var maybeExpandNeighbor = F3(function (maybeBox,columns,board) {
+      var _p0 = maybeBox;
+      if (_p0.ctor === "Just") {
+            var _p1 = _p0._0;
+            return $Basics.not(_p1.isRevealed) ? _U.eq(_p1.value,$Model.Clear(0)) ? A3(recursivelyRevealEmptyNeighbors,_p1,board,columns) : A3($Array.set,
+            _p1.index,
+            _U.update(_p1,{isRevealed: true}),
+            board) : board;
+         } else {
+            return board;
+         }
+   });
+   var revealBox = F3(function (box,board,columns) {
+      var _p2 = box.value;
+      if (_p2.ctor === "Clear") {
+            return _U.eq(_p2._0,0) ? A3(recursivelyRevealEmptyNeighbors,box,board,columns) : A3($Array.set,box.index,_U.update(box,{isRevealed: true}),board);
+         } else {
+            return revealEntireBoard(board);
+         }
+   });
+   var update = F2(function (action,currAppState) {
+      var _p3 = action;
+      return _U.update(currAppState,{board: A3(revealBox,_p3._0,currAppState.board,currAppState.columns)});
+   });
+   return _elm.Update.values = {_op: _op
+                               ,update: update
+                               ,revealBox: revealBox
+                               ,recursivelyRevealEmptyNeighbors: recursivelyRevealEmptyNeighbors
+                               ,maybeExpandNeighbor: maybeExpandNeighbor
+                               ,revealEntireBoard: revealEntireBoard};
+};

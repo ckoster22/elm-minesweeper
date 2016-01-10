@@ -1,0 +1,52 @@
+Elm.Utils = Elm.Utils || {};
+Elm.Utils.make = function (_elm) {
+   "use strict";
+   _elm.Utils = _elm.Utils || {};
+   if (_elm.Utils.values) return _elm.Utils.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Array = Elm.Array.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Model = Elm.Model.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var _op = {};
+   var convertTo2DList = F3(function (boxList,startIndex,columns) {
+      var _p0 = A2($List.partition,function (box) {    return _U.cmp(box.index,startIndex + columns) < 0;},boxList);
+      var currRow = _p0._0;
+      var remaining = _p0._1;
+      return _U.cmp($List.length(currRow),0) > 0 ? A2($List._op["::"],currRow,A3(convertTo2DList,remaining,startIndex + columns,columns)) : _U.list([]);
+   });
+   var getWNeighbor = F3(function (index,columns,board) {
+      return _U.eq(A2($Basics._op["%"],index,columns),0) ? $Maybe.Nothing : A2($Array.get,index - 1,board);
+   });
+   var getSWNeighbor = F3(function (index,columns,board) {
+      return _U.eq(A2($Basics._op["%"],index,columns),0) ? $Maybe.Nothing : A2($Array.get,index + columns - 1,board);
+   });
+   var getSNeighbor = F3(function (index,columns,board) {    return A2($Array.get,index + columns,board);});
+   var getSENeighbor = F3(function (index,columns,board) {
+      return _U.eq(A2($Basics._op["%"],index + 1,columns),0) ? $Maybe.Nothing : A2($Array.get,index + columns + 1,board);
+   });
+   var getENeighbor = F3(function (index,columns,board) {
+      return _U.eq(A2($Basics._op["%"],index + 1,columns),0) ? $Maybe.Nothing : A2($Array.get,index + 1,board);
+   });
+   var getNENeighbor = F3(function (index,columns,board) {
+      return _U.eq(A2($Basics._op["%"],index + 1,columns),0) ? $Maybe.Nothing : A2($Array.get,index - columns + 1,board);
+   });
+   var getNNeighbor = F3(function (index,columns,board) {    return A2($Array.get,index - columns,board);});
+   var getNWNeighbor = F3(function (index,columns,board) {
+      return _U.eq(A2($Basics._op["%"],index,columns),0) ? $Maybe.Nothing : A2($Array.get,index - columns - 1,board);
+   });
+   return _elm.Utils.values = {_op: _op
+                              ,getNWNeighbor: getNWNeighbor
+                              ,getNNeighbor: getNNeighbor
+                              ,getNENeighbor: getNENeighbor
+                              ,getENeighbor: getENeighbor
+                              ,getSENeighbor: getSENeighbor
+                              ,getSNeighbor: getSNeighbor
+                              ,getSWNeighbor: getSWNeighbor
+                              ,getWNeighbor: getWNeighbor
+                              ,convertTo2DList: convertTo2DList};
+};
